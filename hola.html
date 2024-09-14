@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tandure - Plant Monitoring</title>
+    
+    <!-- Import Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDet2eKrHgcsNyOO5iF-nPbBviY5xQ1rh4",
+            authDomain: "ssft-shecu.firebaseapp.com",
+            databaseURL: "https://ssft-shecu-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ssft-shecu",
+            storageBucket: "ssft-shecu.appspot.com",
+            messagingSenderId: "960704837700",
+            appId: "1:960704837700:web:1496c26e5f0064713c6411"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const dht22Ref = ref(database, 'dht22');
+        onValue(dht22Ref, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('humidity').innerText = data.kelembaban.toFixed(1);
+                document.getElementById('temperature').innerText = data.suhu.toFixed(1);
+                document.getElementById('kelembapan_tanah').innerText = data.kelembapan_tanah.toFixed(1);
+                document.getElementById('waterlevel').innerText = data.waterLevel.toFixed(1);
+                document.getElementById('tds').innerText = data.tds.toFixed(1);
+                document.getElementById('ldr').innerText = data.ldr.toFixed(1);
+
+                // Check water level and show notification if it's 0
+                if (data.waterLevel === 0) {
+                    showNotification('Air telah habis! Harap segera menambahkan air.');
+                }
+            }
+        });
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 7000); // Hide notification after 7 seconds
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e3f9e5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #2a9d8f, #264653);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .perkiraan {
+            position: absolute;
+            right: 15px; /* Berada di sebelah kanan header */
+            background-color: #fff;
+            color: #264653;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 8px 15px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .perkiraan a {
+            color: #264653;
+            text-decoration: none;
+        }
+        
+        .perkiraan:hover {
+            background-color: #2a9d8f;
+            border-color: #2a9d8f;
+            color: white;
+        }
+        
+        .perkiraan a:hover {
+            color: white;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        
+        .back-button img {
+            width: 20px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .sensor-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .sensor-card h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+            color: #264653;
+        }
+
+        .sensor-card .value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2a9d8f;
+        }
+
+        .sensor-card .progress-bar {
+            background-color: #e0e0e0;
+            height: 8px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .sensor-card .progress-bar div {
+            height: 8px;
+            background-color: #2a9d8f;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #264653;
+            color: white;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Chatbot */
+        #chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #264653;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        #chatbot:hover {
+            background-color: #2a9d8f;
+        }
+
+        #chatbot img {
+            width: 30px;
+        }
+
+        /* Notification */
+        .notification {
+            display: none;
+            background-color: #ff4d4d;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 80%;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 16px;
+            z-index: 1000;
+        }
+
+        /* Media Queries */
+        @media (min-width: 768px) {
+            main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                font-size: 18px;
+                padding: 10px;
+            }
+
+            .sensor-card h2 {
+                font-size: 18px;
+            }
+
+            .sensor-card .value {
+                font-size: 28px;
+            }
+
+            .back-button img {
+                width: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="back-button">
+            <a href="index.html"><img src="https://img.icons8.com/ios-filled/50/ffffff/back.png" alt="Back"></a>
+        </button>
+        Tandure - Plant Monitoring
+        <button class="perkiraan">
+            <a href="perkiraan.html">Prediksi AI</a>
+        </button>
+    </header>
+
+    <main>
+        <div class="sensor-card">
+            <h2>Kelembapan</h2>
+            <div class="value" id="humidity">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+
+        <div class="sensor-card">
+            <h2>Suhu</h2>
+            <div class="value" id="temperature">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+
+        <div class="sensor-card">
+            <h2>Kelembapan Tanah</h2>
+            <div class="value" id="kelembapan_tanah">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+
+        <div class="sensor-card">
+            <h2>Ketinggian Air</h2>
+            <div class="value" id="waterlevel">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+
+        <div class="sensor-card">
+            <h2>TDS</h2>
+            <div class="value" id="tds">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+
+        <div class="sensor-card">
+            <h2>LDR (Light Intensity)</h2>
+            <div class="value" id="ldr">-</div>
+            <div class="progress-bar"><div></div></div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2024 Tandure | Monitoring Plant Environment
+    </footer>
+
+    <!-- Chatbot Button -->
+    <div id="chatbot">
+        <a href="https://9000-idx-test-1725547591990.cluster-fu5knmr55rd44vy7k7pxk74ams.cloudworkstations.dev/?embedded=0&monospaceUid=121410">
+            <img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="Chatbot">
+        </a>
+    </div>
+
+    <!-- Notification Element -->
+    <div class="notification" id="notification"></div>
+
+</body>
+</html>

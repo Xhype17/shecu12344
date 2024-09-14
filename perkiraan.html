@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perkiraan Waktu Panen Tanaman Hidroponik</title>
+
+    <!-- Import Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDet2eKrHgcsNyOO5iF-nPbBviY5xQ1rh4",
+            authDomain: "ssft-shecu.firebaseapp.com",
+            databaseURL: "https://ssft-shecu-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ssft-shecu",
+            storageBucket: "ssft-shecu.appspot.com",
+            messagingSenderId: "960704837700",
+            appId: "1:960704837700:web:1496c26e5f0064713c6411"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const dht22Ref = ref(database, 'dht22');
+        onValue(dht22Ref, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const kelembapanTanah = data.kelembapan_tanah;
+                const suhu = data.suhu;
+                const kelembaban = data.kelembaban;
+                
+                document.getElementById('kelembapan_tanah').innerText = kelembapanTanah;
+                document.getElementById('suhu').innerText = suhu;
+                document.getElementById('kelembaban').innerText = kelembaban;
+
+                // Perkirakan waktu panen
+                const waktuPanen = calculateHarvestTime(kelembapanTanah, suhu, kelembaban);
+                document.getElementById('waktu_panen').innerText = waktuPanen;
+            }
+        });
+
+        function calculateHarvestTime(kelembapanTanah, suhu, kelembaban) {
+            let hari = 30;
+
+            if (kelembapanTanah < 20) {
+                hari += 5;
+            }
+
+            if (suhu > 30) {
+                hari += 3;
+            }
+
+            if (kelembaban > 70) {
+                hari -= 2;
+            }
+
+            const today = new Date();
+            const harvestDate = new Date(today.getTime() + hari * 24 * 60 * 60 * 1000);
+            return `Perkiraan Waktu Panen: ${harvestDate.toLocaleDateString()}`;
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e3f9e5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(90deg, #2a9d8f, #264653);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        header .back-button {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ffffff;
+            color: #2a9d8f;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        header .back-button:hover {
+            background-color: #e3f9e5;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .sensor-info {
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .sensor-info h2 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #264653;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="back-button" onclick="window.location.href='hola.html'">Back</button>
+        Perkiraan Waktu Panen Tanaman Hidroponik
+    </header>
+
+    <main>
+        <div class="sensor-info">
+            <h2>Kelembapan Tanah:</h2>
+            <div id="kelembapan_tanah">-</div>
+        </div>
+        <div class="sensor-info">
+            <h2>Suhu:</h2>
+            <div id="suhu">-</div>
+        </div>
+        <div class="sensor-info">
+            <h2>Kelembaban:</h2>
+            <div id="kelembaban">-</div>
+        </div>
+        <div class="sensor-info">
+            <h2>Perkiraan Waktu Panen:</h2>
+            <div id="waktu_panen">-</div>
+        </div>
+    </main>
+
+    <footer>
+        &copy; 2024 Tandure | Monitoring Plant Environment
+    </footer>
+
+</body>
+</html>
