@@ -35,7 +35,7 @@
                 document.getElementById('kelembapan_tanah').innerText = data.kelembapan_tanah.toFixed(1);
                 document.getElementById('waterlevel').innerText = data.waterLevel.toFixed(1);
                 document.getElementById('tds').innerText = data.tds.toFixed(1);
-                document.getElementById('ldr').innerText = data.ldr.toFixed(1);
+                document.getElementById('ldr').innerText = data.brightness.toFixed(1);
 
                 // Check water level and show notification if it's 0
                 if (data.waterLevel === 0) {
